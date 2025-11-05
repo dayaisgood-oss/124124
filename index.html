@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-Owner's Area</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #333;
+            border-radius: 8px;
+        }
+        #co-owner-section {
+            display: none;
+        }
+        #announcement-container, #chatroom, #image-upload {
+            display: none;
+        }
+        textarea, input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #444;
+        }
+        .message-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .message-list li {
+            background-color: #444;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the Co-Owner's Area</h1>
+
+    <!-- Co-owner secret code -->
+    <div class="section" id="co-owner-section">
+        <h2>Enter Secret Code</h2>
+        <input type="text" id="secret-code-input" placeholder="Enter Code">
+        <button onclick="checkCode()">Submit</button>
+    </div>
+
+    <!-- Global Announcement Section -->
+    <div class="section" id="announcement-container">
+        <h2>What do you want to announce?</h2>
+        <textarea id="announcement-input" placeholder="Enter your global announcement here"></textarea>
+        <button onclick="submitAnnouncement()">Post Announcement</button>
+        <p><strong>Current Announcement:</strong> <span id="announcement-text">No announcement yet.</span></p>
+    </div>
+
+    <!-- Chatroom Section -->
+    <div class="section" id="chatroom">
+        <h2>Co-owner Chatroom</h2>
+        <ul id="messages-list" class="message-list"></ul>
+        <textarea id="message-input" placeholder="Enter your message here"></textarea>
+        <button onclick="sendMessage()">Send Message</button>
+    </div>
+
+    <!-- Image Upload Section -->
+    <div class="section" id="image-upload">
+        <h2>Upload Image</h2>
+        <input type="file" id="image-file">
+        <button onclick="uploadImage()">Upload Image</button>
+        <div id="image-preview"></div>
+    </div>
+
+    <script>
+        const secretCode = {
+            'fidel': '4321',
+            'johan': '1234',
+            'daya': 'JEET'
+        };
+
+        // Check secret code to grant access to co-owner features
+        function checkCode() {
+            const enteredCode = document.getElementById('secret-code-input').value;
+            const coOwner = Object.keys(secretCode).find(owner => secretCode[owner] === enteredCode);
+
+            if (coOwner) {
+                alert('Access granted to ' + coOwner);
+                document.getElementById('co-owner-section').style.display = 'none';
+                document.getElementById('announcement-container').style.display = 'block';
+                document.getElementById('chatroom').style.display = 'block';
+                document.getElementById('image-upload').style.display = 'block';
+            } else {
+                alert('Invalid code');
+            }
+        }
+
+        // Submit Global Announcement
+        function submitAnnouncement() {
+            const announcementText = document.getElementById('announcement-input').value;
+            localStorage.setItem('globalAnnouncement', announcementText);  // Save announcement
+            document.getElementById('announcement-text').textContent = announcementText;
+            document.getElementById('announcement-input').value = '';  // Clear input
+        }
+
+        // Display saved announcement on page load
+        window.onload = function() {
+            const storedAnnouncement = localStorage.getItem('globalAnnouncement');
+            if (storedAnnouncement) {
+                document.getElementById('announcement-text').textContent = storedAnnouncement;
+            }
+        };
+
+        // Send message to chatroom
+        function sendMessage() {
+            const message = document.getElementById('message-input').value;
+            const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            messages.push(message);
+            localStorage.setItem('chatMessages', JSON.stringify(messages));
+            document.getElementById('message-input').value = '';  // Clear input
+            displayMessages();
+        }
+
+        // Display chat messages
+        function displayMessages() {
+            const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            const messagesList = document.getElementById('messages-list');
+            messagesList.innerHTML = '';  // Clear messages list
+            messages.forEach(message => {
+                const li = document.createElement('li');
+                li.textContent = message;
+                messagesList.appendChild(li);
+            });
+        }
+
+        // Upload Image
+        function uploadImage() {
+            const file = document.getElementById('image-file').files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                const img = document.createElement('img');
+                img.src = reader.result;
+                document.getElementById('image-preview').appendChild(img);
+            }
+            if (file) {
+                reader.readAsDataURL(file);  // Show image preview
+            }
+        }
+    </script>
+
+</body>
+</html>
